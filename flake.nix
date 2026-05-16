@@ -20,19 +20,49 @@
     }:
     let
       configuration =
-        { pkgs, ... }:
+        { pkgs, lib, ... }:
+        let
+          pgLibPath = lib.makeLibraryPath [
+            pkgs.libpq
+            pkgs.postgresql
+            pkgs.openssl
+          ];
+
+        in
         {
           # List packages installed in system profile. To search by name, run:
           # $ nix-env -qaP | grep wget
           environment.systemPackages = [
+            # programming
             pkgs.nixd
             pkgs.nil
             pkgs.nixfmt
 
+            # tools
             pkgs.fd
             pkgs.ripgrep
             pkgs.rustup
+            pkgs.gh
+
+            # deps for packages
+            pkgs.libpq
+            pkgs.postgresql
+            pkgs.openssl
+            pkgs.pkg-config
+            pkgs.perl
           ];
+
+          environment.variables = {
+            DYLD_LIBRARY_PATH = pgLibPath;
+            DYLD_FALLBACK_LIBRARY_PATH = pgLibPath;
+
+            PG_CONFIG = "${pkgs.postgresql}/bin/pg_config";
+            PKG_CONFIG_PATH = "${pkgs.libpq.dev}/lib/pkgconfig:${pkgs.openssl.dev}/lib/pkgconfig";
+
+            OPENSSL_DIR = "${pkgs.openssl.dev}";
+            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+          };
 
           homebrew = {
             enable = true;
