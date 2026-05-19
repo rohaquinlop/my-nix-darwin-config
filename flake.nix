@@ -33,16 +33,22 @@
           # List packages installed in system profile. To search by name, run:
           # $ nix-env -qaP | grep wget
           environment.systemPackages = [
-            # programming
+            # lsp
             pkgs.nixd
             pkgs.nil
             pkgs.nixfmt
+            pkgs.taplo
+            pkgs.rust-analyzer
+            pkgs.ruff
+            pkgs.ty
 
             # tools
             pkgs.fd
             pkgs.ripgrep
             pkgs.rustup
             pkgs.gh
+            pkgs.nodejs_22
+            pkgs.bun
 
             # deps for packages
             pkgs.libpq
@@ -62,17 +68,57 @@
             OPENSSL_DIR = "${pkgs.openssl.dev}";
             OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
             OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+
+            PATH = "/Users/rhafid/.bun/bin:$PATH";
           };
+
+          # Symlink nix-managed libraries into /usr/local/lib so the dynamic
+          # linker finds them without DYLD_* env vars.
+          # macOS SIP strips DYLD_LIBRARY_PATH from children of /bin/zsh & /bin/bash,
+          # breaking coding agents (pi, codex, claude-code, etc.).
+          # /usr/local/lib is a default dyld fallback search path that SIP can't touch.
+          system.activationScripts.postActivation.text = ''
+            echo "setting up nix library symlinks in /usr/local/lib..." >&2
+            mkdir -p /usr/local/lib
+
+            # Clean old symlinks pointing into the nix store before recreating
+            find /usr/local/lib -maxdepth 1 -type l -lname '/nix/store/*' -delete
+
+            for libdir in ${pkgs.libpq}/lib ${pkgs.postgresql.lib}/lib ${pkgs.openssl.out}/lib; do
+              for lib in "$libdir"/*.dylib; do
+                [ -f "$lib" ] || continue
+                name=$(basename "$lib")
+                ln -sf "$lib" "/usr/local/lib/$name"
+              done
+            done
+          '';
+
+          fonts.packages = with pkgs; [
+            nerd-fonts.fira-code
+            fira-code-symbols
+          ];
 
           homebrew = {
             enable = true;
-            brews = [ ];
-            casks = [ "ghostty" ];
+            brews = [ "mole" ];
+            casks = [
+              "ghostty"
+              "steam"
+            ];
             onActivation.cleanup = "zap";
           };
 
           # Necessary for using flakes on this system.
-          nix.settings.experimental-features = "nix-command flakes";
+          nix.settings.experimental-features = [
+            "nix-command"
+            "flakes"
+          ];
+
+          # User permissions
+          nix.settings.trusted-users = [
+            "root"
+            "rhafid"
+          ];
 
           # Enable alternative shell support in nix-darwin.
           programs.zsh.enable = true;
