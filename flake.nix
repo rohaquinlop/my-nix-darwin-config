@@ -56,6 +56,7 @@
             pkgs.openssl
             pkgs.pkg-config
             pkgs.perl
+            pkgs.ffmpeg
           ];
 
           environment.variables = {
