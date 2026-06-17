@@ -52,6 +52,7 @@
 
             # deps for packages
             pkgs.libpq
+            pkgs.libpq.pg_config # provides pg_config (split out of postgresql/libpq)
             pkgs.postgresql
             pkgs.openssl
             pkgs.pkg-config
@@ -63,7 +64,7 @@
             DYLD_LIBRARY_PATH = pgLibPath;
             DYLD_FALLBACK_LIBRARY_PATH = pgLibPath;
 
-            PG_CONFIG = "${pkgs.postgresql}/bin/pg_config";
+            PG_CONFIG = "${pkgs.libpq.pg_config}/bin/pg_config";
             PKG_CONFIG_PATH = "${pkgs.libpq.dev}/lib/pkgconfig:${pkgs.openssl.dev}/lib/pkgconfig";
 
             OPENSSL_DIR = "${pkgs.openssl.dev}";
