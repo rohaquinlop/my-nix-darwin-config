@@ -122,6 +122,8 @@
             "rhafid"
           ];
 
+          nixpkgs.config.allowUnfree = true;
+
           # Enable alternative shell support in nix-darwin.
           programs.zsh.enable = true;
 
