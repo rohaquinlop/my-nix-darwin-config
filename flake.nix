@@ -49,6 +49,8 @@
             pkgs.gh
             pkgs.nodejs_22
             pkgs.bun
+            pkgs.neovim
+            pkgs.ngrok
 
             # deps for packages
             pkgs.libpq
@@ -58,6 +60,10 @@
             pkgs.pkg-config
             pkgs.perl
             pkgs.ffmpeg
+            pkgs.tree-sitter
+            pkgs.luarocks
+            pkgs.vimPlugins.fff-nvim
+            pkgs.fzf
           ];
 
           environment.variables = {
