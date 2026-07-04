@@ -51,6 +51,9 @@
             pkgs.bun
             pkgs.neovim
             pkgs.ngrok
+            pkgs.docker
+            pkgs.docker-compose
+            pkgs.colima
 
             # deps for packages
             pkgs.libpq
@@ -64,6 +67,7 @@
             pkgs.luarocks
             pkgs.vimPlugins.fff-nvim
             pkgs.fzf
+            pkgs.efm-langserver
           ];
 
           environment.variables = {
@@ -113,7 +117,7 @@
               "ghostty"
               "steam"
             ];
-            onActivation.cleanup = "zap";
+            onActivation.cleanup = "uninstall";
           };
 
           # Necessary for using flakes on this system.
